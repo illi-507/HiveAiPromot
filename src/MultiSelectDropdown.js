@@ -7,14 +7,20 @@ function DropdownItem({
   singleSelect,
 }) {
   const display = collapse ? "none" : "block";
+  const [bgColors, setBgColors] = useState([
+    ...new Array(nbaTeams.length).fill(""),
+  ]);
 
-  function handleChange(e) {
+  function handleChange(e, index) {
+    let checked = e.target.checked;
+    let value = e.target.value;
+    if (!singleSelect) {
+      handleBgColor(index, checked);
+    }
     setSelectedOptions((array) => {
       let current = array;
-      let checked = e.target.checked;
-      let value = e.target.value;
       if (singleSelect) {
-        return [value]
+        return [value];
       } else {
         if (checked) {
           return [...array, value];
@@ -26,16 +32,36 @@ function DropdownItem({
     });
   }
 
+  function handleBgColor(index, checked) {
+    let array = bgColors;
+    if (checked) {
+      array[index] = "#18dcff";
+      setBgColors([...array]);
+    } else {
+      array[index] = "";
+      setBgColors([...array]);
+    }
+  }
+
   return (
     <div className="item-container" style={{ display: display }}>
       <div>
-        {nbaTeams.map((item) => {
+        {nbaTeams.map((item, index) => {
           return (
-            <label className="item" key={item}>
+            <label
+              className="item"
+              key={item}
+              style={{ backgroundColor: bgColors[index] }}
+            >
               <input
                 type={singleSelect ? "radio" : "checkbox"}
-                style={{ marginRight: "10px",display: singleSelect?"none":"block" }}
-                onChange={handleChange}
+                style={{
+                  marginRight: "10px",
+                  display: singleSelect ? "none" : "block",
+                }}
+                onChange={(e) => {
+                  handleChange(e, index);
+                }}
                 value={item}
                 name="radio"
               />
@@ -62,8 +88,12 @@ function MultiSelectDropdown({ singleSelect }) {
         <div className="selected-options-container">
           <div className="selected-options">
             {selectedOption.length ? (
-              selectedOption.map((item) => <div key={item}>{item}
-              {!singleSelect&&","}</div>)
+              selectedOption.map((item) => (
+                <div key={item}>
+                  {item}
+                  {!singleSelect && ","}
+                </div>
+              ))
             ) : (
               <div>NONE</div>
             )}
